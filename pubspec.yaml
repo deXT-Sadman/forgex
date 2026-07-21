@@ -1,0 +1,22 @@
+name: forgex
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2          # state management
+  http: ^1.2.1              # talk to your REST API (backend for MongoDB)
+  shared_preferences: ^2.2.3 # offline cache
+  image_picker: ^1.1.2       # profile picture
+  google_fonts: ^6.2.1       # typography
+  intl: ^0.19.0              # date formatting
+  uuid: ^4.4.0               # unique local task IDs
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
