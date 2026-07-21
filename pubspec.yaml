@@ -1,4 +1,6 @@
 name: forgex
+environment:
+  sdk: ^3.12.0
 dependencies:
   flutter:
     sdk: flutter
