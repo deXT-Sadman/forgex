@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/constants.dart';
+import 'auth/login_screen.dart';
+import 'home/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -29,13 +33,20 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _bootstrap() async {
-    // Day 2 onward, this is where we'll check for a saved login session.
-    // For today, just wait so the splash animation is actually visible.
-    await Future.delayed(const Duration(milliseconds: 1600));
+    final authProvider = context.read<AuthProvider>();
+    // Small delay so the splash animation is actually seen.
+    await Future.wait([
+      authProvider.loadSession(),
+      Future.delayed(const Duration(milliseconds: 1400)),
+    ]);
 
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const _Day1PlaceholderScreen()),
+      MaterialPageRoute(
+        builder: (_) => authProvider.status == AuthStatus.authenticated
+            ? const HomeScreen()
+            : const LoginScreen(),
+      ),
     );
   }
 
@@ -57,9 +68,6 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo placeholder — swap this Container for an
-                // Image.asset('assets/images/logo.png') once you have
-                // branded art.
                 Container(
                   width: 108,
                   height: 108,
@@ -101,37 +109,6 @@ class _SplashScreenState extends State<SplashScreen>
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Temporary screen for Day 1 only — proves the splash screen navigates
-/// correctly. We'll delete this on Day 2 and route to LoginScreen instead.
-class _Day1PlaceholderScreen extends StatelessWidget {
-  const _Day1PlaceholderScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.check_circle_rounded,
-              color: AppColors.success,
-              size: 48,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Day 1 Complete ✅',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            const Text('Models, theme & splash screen are working.'),
-          ],
         ),
       ),
     );

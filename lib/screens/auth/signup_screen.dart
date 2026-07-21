@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:forgex/screens/auth/forgot_password_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_theme.dart';
-import '../../utils/constants.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../home/home_screen.dart';
-import 'forgot_password_screen.dart';
-import 'signup_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
   bool _obscure = true;
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.signIn(
+    final success = await authProvider.signUp(
+      username: _usernameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Sign in failed.'),
+          content: Text(authProvider.errorMessage ?? 'Sign up failed.'),
           backgroundColor: AppColors.danger,
         ),
       );
@@ -58,40 +59,35 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.check_circle_rounded,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(height: 24),
                 Text(
-                  'Welcome back',
+                  'Create your account',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Sign in to keep ${AppStrings.appName}ing your day.',
+                  'Start organizing your tasks in minutes.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
+                CustomTextField(
+                  label: 'Username',
+                  controller: _usernameController,
+                  hint: 'sadman',
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Username is required' : null,
+                ),
+                const SizedBox(height: 18),
                 CustomTextField(
                   label: 'Email',
                   controller: _emailController,
@@ -123,20 +119,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ForgotPasswordScreen(),
-                      ),
-                    ),
-                    child: const Text('Forgot Password?'),
-                  ),
+                const SizedBox(height: 18),
+                CustomTextField(
+                  label: 'Confirm Password',
+                  controller: _confirmController,
+                  hint: '••••••••',
+                  obscureText: _obscure,
+                  validator: (v) {
+                    if (v != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 28),
                 CustomButton(
-                  label: 'Sign In',
+                  label: 'Create Account',
                   isLoading: authProvider.isLoading,
                   onPressed: _submit,
                 ),
@@ -144,15 +142,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    const Text('Already have an account?'),
                     TextButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const SignupScreen()),
-                      ),
-                      child: const Text('Sign Up'),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Sign In'),
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
               ],
             ),
           ),
