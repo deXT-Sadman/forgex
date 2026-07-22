@@ -75,7 +75,7 @@ class ApiConfig {
 
 ```bash
 git clone https://github.com/deXT-Sadman/forgex.git
-cd doify
+cd forgex
 flutter pub get
 flutter run
 ```
