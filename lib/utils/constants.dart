@@ -27,6 +27,6 @@ class PrefsKeys {
 }
 
 class AppStrings {
-  static const String appName = 'Forgex';
+  static const String appName = 'ForgeX';
   static const String tagline = 'Plan it. Do it. ForgeX.';
 }
