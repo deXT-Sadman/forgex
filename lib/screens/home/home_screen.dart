@@ -100,7 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => taskProvider.loadTasks(token: auth.token),
+        onRefresh: () async {
+          await taskProvider.loadTasks(token: auth.token);
+          await taskProvider.syncPending(token: auth.token);
+        },
         child: TaskListView(
           statusFilter: tab.status,
           isLoading: taskProvider.isLoading,
