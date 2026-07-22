@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'utils/app_theme.dart';
@@ -32,6 +33,7 @@ class _ForgeXAppState extends State<ForgeXApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider.value(value: _themeProvider),
       ],
       child: Consumer<ThemeProvider>(

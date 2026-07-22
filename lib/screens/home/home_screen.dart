@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:forgex/screens/add_edit_task_screen.dart';
 import 'package:provider/provider.dart';
 import '../../models/task_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/task_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/constants.dart';
 import '../profile/profile_screen.dart';
+
 import 'task_list_view.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -38,8 +41,18 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
+      context.read<TaskProvider>().loadTasks(token: auth.token);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final taskProvider = context.watch<TaskProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final tab = _tabs[_currentIndex];
 
@@ -86,7 +99,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: TaskListView(statusFilter: tab.status),
+      body: RefreshIndicator(
+        onRefresh: () => taskProvider.loadTasks(token: auth.token),
+        child: TaskListView(
+          statusFilter: tab.status,
+          isLoading: taskProvider.isLoading,
+          isOffline: taskProvider.isOffline,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const AddEditTaskScreen())),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Task'),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
@@ -116,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
 class _TabInfo {
   final String label;
   final IconData icon;
-  final TaskStatus? status; // null => Home (all tasks)
+  final TaskStatus? status;
   const _TabInfo({
     required this.label,
     required this.icon,
