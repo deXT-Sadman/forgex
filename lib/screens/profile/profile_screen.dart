@@ -22,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
               radius: 40,
               backgroundColor: Theme.of(
                 context,
-              ).colorScheme.primary.withOpacity(0.15),
+              ).colorScheme.primary.withValues(alpha: 0.15),
               child: Text(
                 (auth.currentUser?.username.isNotEmpty ?? false)
                     ? auth.currentUser!.username[0].toUpperCase()
