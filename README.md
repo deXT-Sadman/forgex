@@ -74,7 +74,7 @@ class ApiConfig {
 ## 🚀 Getting Started
 
 ```bash
-git clone https://github.com/<your-username>/doify.git
+git clone https://github.com/deXT-Sadman/forgex.git
 cd doify
 flutter pub get
 flutter run
