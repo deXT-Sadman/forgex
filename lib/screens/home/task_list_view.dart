@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forgex/screens/add_edit_task_screen.dart';
+import 'package:forgex/screens/tasks/add_edit_task_screen.dart';
 import 'package:provider/provider.dart';
 import '../../models/task_model.dart';
 import '../../providers/auth_provider.dart';
