@@ -26,13 +26,13 @@ A modern, offline-first To-Do app built with Flutter — featuring authenticatio
 |--------|---------------|--------------|--------------|
 | ![](screenshots/home.png) | ![](screenshots/Home2.png) | ![](screenshots/Home3.png) | ![](screenshots/progress.png) |
 
-| Completed Screen | Cancelled Screen | Home Features | Add Task Screen |
+| Completed Screen | Cancelled Screen | Add Task Screen | Edit Task Screen |
 |--------|---------------|--------------|--------------|
-| ![](screenshots/completed.png) | ![](screenshots/cancel.png) | ![](screenshots/addTask.png) | ![](screenshots/progress.png) |
+| ![](screenshots/completed.png) | ![](screenshots/cancel.png) | ![](screenshots/addTask.png) | ![](screenshots/edit.png) |
 
-| Edit Task Screen | Edit Profile Screen1 | Edit Profile Screen2 | Log Out Screen |
-|--------|---------------|--------------|--------------|
-| ![](screenshots/edit.png) | ![](screenshots/edit1.png) | ![](screenshots/edit2.png) | ![](screenshots/logout.png) |
+| Edit Profile Screen1 | Edit Profile Screen2 | Log Out Screen |
+|---------------|--------------|--------------|
+| ![](screenshots/edit1.png) | ![](screenshots/edit2.png) | ![](screenshots/logout.png) |
 
 ---
 
