@@ -16,6 +16,26 @@ A modern, offline-first To-Do app built with Flutter — featuring authenticatio
 - **Full Task CRUD** — create, read, update, delete, with priority levels and due dates
 - **Offline-First Support** — optimistic UI, SharedPreferences caching, and background sync once reconnected
 
+## 📱 Screenshots
+
+| Splash | Login | Forgot Password | Sign Up |
+|--------|------|---------------|-----------------|
+| ![](screenshots/splash.png) | ![](screenshots/login.png) | ![](screenshots/forgotPassword.png) | ![](screenshots/SignUp.png) |
+
+| Home Dark | Home Light | Home Features | Progress Screen |
+|--------|---------------|--------------|--------------|
+| ![](screenshots/home.png) | ![](screenshots/Home2.png) | ![](screenshots/Home3.png) | ![](screenshots/progress.png) |
+
+| Completed Screen | Cancelled Screen | Home Features | Add Task Screen |
+|--------|---------------|--------------|--------------|
+| ![](screenshots/completed.png) | ![](screenshots/cancel.png) | ![](screenshots/addTask.png) | ![](screenshots/progress.png) |
+
+| Edit Task Screen | Edit Profile Screen1 | Edit Profile Screen2 | Log Out Screen |
+|--------|---------------|--------------|--------------|
+| ![](screenshots/edit.png) | ![](screenshots/edit1.png) | ![](screenshots/edit2.png) | ![](screenshots/logout.png) |
+
+---
+
 ## 🏗️ Architecture
 
 ```
