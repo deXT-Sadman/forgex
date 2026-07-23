@@ -59,6 +59,10 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+  /// Saves the task locally (fast) and returns immediately — the network
+  /// sync happens in the background via [_syncCreate], so the Add/Edit
+  /// screen's "Create Task" button never sits waiting on a slow or
+  /// unreachable server.
   Future<bool> addTask({
     required String? token,
     required String userId,
@@ -69,7 +73,7 @@ class TaskProvider extends ChangeNotifier {
     TaskStatus status = TaskStatus.pending,
   }) async {
     final localId = _uuid.v4();
-    var newTask = TaskModel(
+    final newTask = TaskModel(
       localId: localId,
       userId: userId,
       title: title,
@@ -80,30 +84,48 @@ class TaskProvider extends ChangeNotifier {
       isSynced: false,
     );
 
-    // Optimistic UI: show it right away, then try to sync.
-    _tasks.insert(0, newTask);
-    await StorageService.instance.saveTasks(_tasks);
-    notifyListeners();
-
-    if (token == null) return true;
-
     try {
-      final synced = await _taskService.createTask(token: token, task: newTask);
+      // Optimistic UI: show it right away.
+      _tasks.insert(0, newTask);
+      await StorageService.instance.saveTasks(_tasks);
+      notifyListeners();
+    } catch (_) {
+      // Extremely unlikely (disk write failure), but if the local save
+      // itself fails, this is a genuine failure the UI should know about.
+      return false;
+    }
+
+    if (token != null) {
+      // Fire-and-forget: don't make the caller wait on this.
+      _syncCreate(token: token, localId: localId, task: newTask);
+    }
+
+    return true;
+  }
+
+  Future<void> _syncCreate({
+    required String token,
+    required String localId,
+    required TaskModel task,
+  }) async {
+    try {
+      final synced = await _taskService.createTask(token: token, task: task);
       final idx = _tasks.indexWhere((t) => t.localId == localId);
       if (idx != -1) {
         _tasks[idx] = synced.copyWith(localId: localId, isSynced: true);
         await StorageService.instance.saveTasks(_tasks);
         notifyListeners();
       }
-      return true;
+      isOffline = false;
     } on TaskServiceException catch (e) {
       isOffline = e.isOffline;
-      // Task stays cached locally as unsynced; it will retry via syncPending().
+      // Task stays cached locally as unsynced; retried later via syncPending().
       notifyListeners();
-      return e.isOffline; // offline isn't a failure the user needs an error for
     }
   }
 
+  /// Same fire-and-forget pattern as [addTask] — updates the local cache
+  /// instantly and syncs to the server in the background.
   Future<bool> updateTask({
     required String? token,
     required TaskModel task,
@@ -112,22 +134,38 @@ class TaskProvider extends ChangeNotifier {
     if (idx == -1) return false;
 
     final updated = task.copyWith(updatedAt: DateTime.now(), isSynced: false);
-    _tasks[idx] = updated;
-    await StorageService.instance.saveTasks(_tasks);
-    notifyListeners();
-
-    if (token == null || task.id == null) return true;
 
     try {
-      final synced = await _taskService.updateTask(token: token, task: updated);
-      _tasks[idx] = synced.copyWith(localId: task.localId, isSynced: true);
+      _tasks[idx] = updated;
       await StorageService.instance.saveTasks(_tasks);
       notifyListeners();
-      return true;
+    } catch (_) {
+      return false;
+    }
+
+    if (token != null && task.id != null) {
+      _syncUpdate(token: token, updated: updated);
+    }
+
+    return true;
+  }
+
+  Future<void> _syncUpdate({
+    required String token,
+    required TaskModel updated,
+  }) async {
+    try {
+      final synced = await _taskService.updateTask(token: token, task: updated);
+      final idx = _tasks.indexWhere((t) => t.localId == updated.localId);
+      if (idx != -1) {
+        _tasks[idx] = synced.copyWith(localId: updated.localId, isSynced: true);
+        await StorageService.instance.saveTasks(_tasks);
+        notifyListeners();
+      }
+      isOffline = false;
     } on TaskServiceException catch (e) {
       isOffline = e.isOffline;
       notifyListeners();
-      return e.isOffline;
     }
   }
 
@@ -142,6 +180,8 @@ class TaskProvider extends ChangeNotifier {
     );
   }
 
+  /// Deletion also returns instantly (local removal), syncing the server
+  /// delete in the background.
   Future<bool> deleteTask({
     required String? token,
     required TaskModel task,
@@ -150,20 +190,28 @@ class TaskProvider extends ChangeNotifier {
     await StorageService.instance.saveTasks(_tasks);
     notifyListeners();
 
-    if (token == null || task.id == null) return true;
+    if (token != null && task.id != null) {
+      _syncDelete(token: token, taskId: task.id!);
+    }
 
+    return true;
+  }
+
+  Future<void> _syncDelete({
+    required String token,
+    required String taskId,
+  }) async {
     try {
-      await _taskService.deleteTask(token: token, taskId: task.id!);
-      return true;
+      await _taskService.deleteTask(token: token, taskId: taskId);
+      isOffline = false;
     } on TaskServiceException catch (e) {
       isOffline = e.isOffline;
       notifyListeners();
-      return e.isOffline;
     }
   }
 
   /// Push any tasks created/edited while offline. Call this when
-  /// connectivity is restored (e.g. pull-to-refresh). Wired up on Day 5.
+  /// connectivity is restored (e.g. pull-to-refresh).
   Future<void> syncPending({required String? token}) async {
     if (token == null) return;
     final unsynced = _tasks.where((t) => !t.isSynced).toList();
