@@ -128,7 +128,7 @@ class TaskModel {
   /// Serialize for sending to the MongoDB-backed REST API.
   /// `_id` is omitted on create; the server generates it.
   Map<String, dynamic> toJson({bool includeId = false}) {
-    final map = {
+    final Map<String, dynamic> map = {
       'localId': localId,
       'userId': userId,
       'title': title,
@@ -178,7 +178,7 @@ class TaskModel {
       priority: priority ?? this.priority,
       dueDate: dueDate ?? this.dueDate,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? DateTime.now(),
+      updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,
     );
   }
